@@ -2,9 +2,9 @@
 import time
 USER_FILENAME = 'users'
 #常量，存的是存储用户信息的文件名
-LOG_FILENAME = 'movie.log'
+LOG_FILENAME = 'shop.log'
 #常量，存的是日志文件名
-PRODUCT_FILENAME = 'ttest'
+PRODUCT_FILENAME = 'products'
 #常量，存的是电影信息的文件名
 def read_file(filename):
     '''
@@ -14,12 +14,12 @@ def read_file(filename):
     :
     '''
     with open(filename,'a+') as fr:
-        fr.seek(0)    #2从末尾开始
+        fr.seek(0)
         content = fr.read()
         print content
         if len(content):#这里判断文件内容是否为空的，如果不为0的话就为是真
            return eval(content)
-        return []
+        return {}
 
 def write_file(filename,content):
     '''
@@ -70,7 +70,7 @@ def login():
             print('用户不存在')
 
 
-def is_time(s):
+def is_price(s):
     '''
     这个函数的作用是用来判断价格是否合法，
     :param s:
@@ -96,95 +96,63 @@ def is_time(s):
     return False
 
 
-def add_movie():
-    movies = read_file(PRODUCT_FILENAME)#获取电影信息
-    movie = {}
-    movie['title'] = raw_input('请输入电影名称：')
-    movie['cover'] = raw_input('请输入电影封面:')
-    movie['screenshot'] = raw_input('请输入电影截图:')
-    movie['year'] = raw_input('请输入电影年代:')
-    movie['country'] = raw_input('请输入电影产地:')
-    movie['category'] = raw_input('请输入电影类别：')
-    movie['douban_rating'] = raw_input('请输入电影豆瓣评分:')
-    movie['duration'] = raw_input('请输入电影片长')
-    movie['director'] = raw_input('请输入电影导演')
-    movie["profile"] = raw_input('请输入电影简介')
-    movie['down_load'] = raw_input('请输入电影下载地址')
-
-    #p_name = raw_input('请输入电影名称：')
-    #p_id = raw_input('请输入电影id：')
-    #p_price = raw_input('请输入电影价格：')
-    if movie['title'] != '' :
+def add_product():
+    products_dic = read_file(PRODUCT_FILENAME)#获取电影信息
+    p_name = raw_input('请输入电影名称：')
+    p_id = raw_input('请输入电影id：')
+    p_price = raw_input('请输入电影价格：')
+    if p_name != '' and p_id != '' and p_price != '':
         # if和elif都是条件为真的时候才走的
-        for x in movies:
-            if movie['title'] == x['title']:
-                print('电影已存在！')
-            elif not is_time(movie['year']):
-                # not True是flase，指定走不到这里
-                # not Flase，就是true，就走这了
-                print('电影价格不合法！')
-            else:
-                movies.append(movie)
-                #products_dic[p_name] = {'id': p_id, 'price': p_price}
-                # products是存最新所有商品，给这个字典添加商品
-                write_file(PRODUCT_FILENAME,movies)
-                #调用写文件的函数，把商品信息写入到文件中
-                write_log(username,'添加了电影信息 电影名【%s】 '
-                         %(movie['title']))
-                print('电影添加成功')
-                break
+        if p_name in products_dic:
+            print('电影已存在！')
+        elif not is_price(p_price):
+            # not True是flase，指定走不到这里
+            # not Flase，就是true，就走这了
+            print('电影价格不合法！')
+        else:
+            products_dic[p_name] = {'id': p_id, 'price': p_price}
+            # products是存最新所有商品，给这个字典添加商品
+            write_file(PRODUCT_FILENAME,products_dic)
+            #调用写文件的函数，把商品信息写入到文件中
+            write_log(username,'添加了电影信息 电影名【%s】 电影价格【%s】 电影id【%s】'
+                      %(p_name,p_price,p_id))
+            print('电影添加成功')
     else:
         print('电影名称、电影id、电影价格都不能为空')
 
-def del_movie():
+def del_product():
     '''
     删除商品
     :return:
     '''
-    movies = read_file(PRODUCT_FILENAME)  # 获取电影信息
-    movie = {}
-    #print('可以删除的有',products_dic.keys())
-    movie['title'] = raw_input('请输入你要删除的电影名称：')
-    y = 0
-    if movie['title'] !='':
-        for x in movies:
-            if  movie['title'] == x['title']:
-                #products_dic.pop(p_name)
-                del movies[y]
-                write_file(PRODUCT_FILENAME,movies)
-                print('删除成功')
-                write_log(username,'删除了【%s】'%movie['title'])
-                break
-            if (y == len(movies)):
-                print('电影名称不存在！')
-            y = y + 1
+    products_dic = read_file(PRODUCT_FILENAME)  # 获取商品信息
+    print('可以删除的有',products_dic.keys())
+    p_name = raw_input('请输入你要删除的电影名称：')
+    if p_name !='':
+        if p_name in products_dic:
+            products_dic.pop(p_name)
+            write_file(PRODUCT_FILENAME,products_dic)
+            print('删除成功')
+            write_log(username,'删除了【%s】'%p_name)
+        else:
+            print('电影名称不存在！')
     else:
         print('电影名称不能为空')
-def query_movie():
+def query_product():
     '''
     查询电影
     :return:
     '''
-    movies = read_file(PRODUCT_FILENAME)  # 获取电影信息
-    movie = {}
-    y = 0
-    movie['title'] = raw_input('请输入你要查询的电影名称：')
-    if movie['title'] != '':
-        for x in movies:
-            y = y + 1
-            if movie['title'] == x['title']:
-                '''
-                p_id = products_dic[p_name]['id']
-                p_price = products_dic[p_name]['price']
-                '''
-                msg = '电影名称是:【%s】' % (movie['title'])
-                print(x)
-                write_log(username,msg)
-                break
-            if (y == len(movies) ):
-                print('你输入的电影名称不存在')
+    products_dic = read_file(PRODUCT_FILENAME)
+    p_name = raw_input('请输入你要查询的电影名称：')
+    if p_name in products_dic:
+        p_id = products_dic[p_name]['id']
+        p_price = products_dic[p_name]['price']
+        msg = '电影名称是:【%s】,电影id是【%s】，【%s】' % (p_name, p_id, p_price)
+        print(msg)
+        write_log(username,msg)
     else:
-        print('你输入的电影名称不能为空')
+        print('你输入的电影不存在！')
 def n_exit():
     exit('程序退出')
 
@@ -197,7 +165,7 @@ def add_user():
         # if和elif都是条件为真的时候才走的
         if username in users_dic:
             print('用户名已存在！')
-        elif not is_time(blance):
+        elif not is_price(blance):
             # not True是flase，指定走不到这里
             # not Flase，就是true，就走这了
             print('钱不合法！')
@@ -287,14 +255,14 @@ manager_user_menu  = {
     "3":modify_user,
     "0":n_exit
 }#这个用户管理函数做的映射
-movies_manger = {
-    "1":add_movie,
-    "2":del_movie,
-    "3":query_movie,
+product_manger = {
+    "1":add_product,
+    "2":del_product,
+    "3":query_product,
     "0":n_exit,
-}#这个是电影管理
+}#这个是产品管理
 admin_menu = {"4":manager_user}
-admin_menu.update(movies_manger)
+admin_menu.update(product_manger)
 #admin的菜单，为了普通用户操作用户管理
 
 
@@ -311,10 +279,9 @@ def welcome():
                 print('请请输入0-4的选项！')
         else:
             choice = raw_input('1 添加电影、2删除电影、3查询电影、0退出:')
-            if choice in movies_manger:
-                movies_manger[choice]()
+            if choice in product_manger:
+                product_manger[choice]()
             else:
                 print('请请输入0-3的选项！')
-
 
 welcome()#运行程序程序

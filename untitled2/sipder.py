@@ -130,6 +130,10 @@ def spider():
             movies.append(movie)
             print(movie)  #获取一个就打印一个
         #print(movies) 打印全部
+        with open('ssss', 'a+') as fw:
+            fw.seek(0)
+            fw.truncate()
+            fw.write(str(movies))
             #break
         #break
 
